@@ -37,13 +37,10 @@ float** creation_matrice(int taille){
 		}
 	}
 	
-	
-
 	return matrice;
 }
 
 float** remplissage(float** matrice, int taille){
-	printf("Remplissage:\n");
 	for(int a=0; a<taille; a++){
 		for(int b=0; b<taille; b++){
 			if(scanf("%f",&matrice[a][b])!=1){
@@ -65,12 +62,26 @@ void affichage_matrice(float** matrice,int taille){
 	}
 
 	for(int a=0; a<taille; a++){
-		printf("|");
+		printf("| ");
 		for(int b=0; b<taille; b++){
 			printf("%f ",matrice[a][b]);
 		}
 		printf("|\n");
 	}
+}
+
+float* colonne(float** matrice, int numero, int taille){
+	
+	if(matrice==NULL) return NULL;
+	
+	float* col=malloc(taille*sizeof(float));
+	if(col==NULL){
+		printf("Erreur d'allocation mémoire\n");
+		exit(1);
+	}	
+	
+	for(int lig=0;lig<taille;lig++) col[lig]=matrice[lig][numero];
+	return col;
 }
 
 float produit_lig_col(float* ligne, float* colonne, int taille){
@@ -81,29 +92,37 @@ float produit_lig_col(float* ligne, float* colonne, int taille){
 	return somme;
 }
 
+
+
 float** produit_matrice(float** A, float** B, int taille){
 
 	float** result=creation_matrice(taille);
 	float* ligne=malloc(taille*sizeof(float));
-	float* colonne=malloc(taille*sizeof(float));
-	if(ligne == NULL || colonne == NULL){
+	float* col=NULL;
+	if(ligne == NULL){
 		printf("Erreur allocation mémoire\n");
 		return NULL;
 	}
-	for(int a=0;a<taille;a++){
-		ligne=A[a];
-		for(int k=0;k<taille;k++){
-			colonne[k]=B[k][a];
+	for(int lig=0;lig<taille;lig++){
+	
+		ligne=A[lig];
+		for(int l=0;l<taille;l++){
+			col=colonne(B,l,taille);
+			result[lig][l]=produit_lig_col(ligne,col,taille);
+			free(col);
 		}
-		result[a][b]
+
 	}
+	
 	return result;
 }
 
 int main(){
 
 	int taille;
-	float** matrice=NULL;
+	float** A=NULL;
+	float** B=NULL;
+	float** C=NULL;
 	
 	printf("Quelle est la taille de votre matrice ?\n");
 	if(scanf("%d",&taille)!=1 || taille<1){
@@ -112,11 +131,26 @@ int main(){
 	}
 	
 	
-	matrice=creation_matrice(taille);
-	affichage_matrice(matrice, taille);
-	matrice=remplissage(matrice,taille);
-	affichage_matrice(matrice, taille);
-	free_matrice(matrice,taille);
+	A=creation_matrice(taille);
+	B=creation_matrice(taille);
+	
+	printf("Remplissage de A:\n");
+	A=remplissage(A,taille);
+
+	printf("Remplissage de B:\n");
+	B=remplissage(B,taille);
+	
+	C=produit_matrice(A,B,taille);
+
+	printf("A:\n");affichage_matrice(A, taille);
+	printf("\nB:\n");affichage_matrice(B, taille);
+	printf("\nC:\n");affichage_matrice(C, taille);
+	
+	
+	
+	free_matrice(A,taille);
+	free_matrice(B,taille);
+	free_matrice(C,taille);
 	
 	return 0;
 }
